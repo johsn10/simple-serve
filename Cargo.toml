@@ -1,0 +1,13 @@
+[package]
+name = "simple-serve"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+proc-macro2 = "1.0.86"
+quote = "1.0.36"
+reqwest = "0.12.5"
+syn = "2.0.71"
+tokio = "1.38.1"
+
+[lib]
