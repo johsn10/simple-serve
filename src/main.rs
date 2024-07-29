@@ -1,24 +1,21 @@
 use simple_serve::{simple_serve, Method};
-use std::io::{Read, Write};
-use std::sync::{Arc, Mutex};
+use std::{fs::File, str::FromStr};
+use tiny_http::{Header, Response};
 
 fn main() {
-    let state: Arc<Mutex<i32>> = Arc::from(Mutex::from(2));
-    let ss_state = state.clone();
+    let state = 1;
 
     simple_serve! {
         (port: 8000),
-        (Method::Get, "/") (ss_state) => |stream: &mut TcpStream, state: Arc<Mutex<i32>>| {
-            let response = format!("HTTP/1.1 200 OK\r\n\r\n");
-            let mut buffer = [0; 50];
-
-            stream.read(&mut buffer).unwrap();
-            stream.write(response.as_bytes())
-                .expect("Couldn't send data.");
-            stream.flush().unwrap();
-
-            println!("State: {:?}", state);
-            println!("Request: {}", String::from_utf8_lossy(&buffer));
+        (Method::Get, "/") (state) => |state| {
+            println!("State: {}", state);
+            Response::from_string("Working!")
+        },
+        (Method::Get, "/home") () => || {
+            let html = File::open("src/home.html").unwrap();
+            let mut response: Response<File> = Response::from_file(html);
+            response.add_header(Header::from_str("Content-Type: text/html;").unwrap());
+            response
         }
     };
     loop {}
